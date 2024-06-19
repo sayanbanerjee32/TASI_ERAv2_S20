@@ -30,8 +30,15 @@ with gr.Blocks() as demo:
     
     content = gr.Textbox(label = "Enter the Bengali text for tokenization")
     inputs = [
-                content,
-              ]
+            content,
+            ]
+    gr.Examples(["বাইরে এতই গরম যে আমি পুরোদিন আমার শীততাপ নিয়ন্ত্রিত বাড়িতে থাকতে চাই।",
+                "খুব ভালোভাবেই নিজের দায়িত্ব পালন করেছেন তিনি।",
+                "আয়কর উঠে যাচ্ছে অনেকটা।",
+                "যদি কোনো ব্যক্তি এ ব্যাপারে দোষী সাব্যস্ত হয় তা হলে ব্যবস্থা নেওয়া হবে।",
+                "বছরের বারোটা মাস হলো জানুয়ারি, ফেব্রুয়ারি, মার্চ, এপ্রিল, মে, জুন জুলাই, আগস্ট, সেপ্টেম্বর, অক্টোবর, নভেম্বর আর ডিসেম্বর।"], 
+                inputs = inputs)
+
     generate_btn = gr.Button(value = 'Tokenize')
     with gr.Row():
         encoded = gr.Textbox(label = "Tokens")
@@ -39,7 +46,7 @@ with gr.Blocks() as demo:
     outputs  = [encoded, decoded]
     generate_btn.click(fn = encode_decode, inputs= inputs, outputs = outputs)
 
-# for collab
+## for collab
 # demo.launch(debug=True) 
 
 if __name__ == '__main__':
