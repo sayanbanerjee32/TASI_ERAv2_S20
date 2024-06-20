@@ -21,7 +21,7 @@ regex_pat = data_dict['regex_pat']
 
 def encode_decode(text):    
     ids = encode(text, regex_pat, merges)
-    return ' '.join([str(i) for i in ids]), decode(ids, vocab)
+    return ' '.join([str(i) for i in ids]), decode(ids, vocab), [(str(i),decode([i], vocab)) for i in ids]
 
 
 with gr.Blocks() as demo:
@@ -43,10 +43,11 @@ with gr.Blocks() as demo:
     with gr.Row():
         encoded = gr.Textbox(label = "Tokens")
         decoded = gr.Textbox(label = "Regenerated text")
-    outputs  = [encoded, decoded]
+    explain = gr.HighlightedText(label = "Mapping tokens to text")
+    outputs  = [encoded, decoded, explain]
     generate_btn.click(fn = encode_decode, inputs= inputs, outputs = outputs)
 
-## for collab
+# # for collab
 # demo.launch(debug=True) 
 
 if __name__ == '__main__':
