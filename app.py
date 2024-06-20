@@ -21,7 +21,7 @@ regex_pat = data_dict['regex_pat']
 
 def encode_decode(text):    
     ids = encode(text, regex_pat, merges)
-    return ' '.join([str(i) for i in ids]), decode(ids, vocab), [(str(i),decode([i], vocab)) for i in ids]
+    return ', '.join([str(i) for i in ids]), decode(ids, vocab), [(str(i),decode([i], vocab)) for i in ids]
 
 
 with gr.Blocks() as demo:
