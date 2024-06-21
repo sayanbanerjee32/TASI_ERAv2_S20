@@ -10,37 +10,40 @@
 
 # Bengali BPE Tokenizer
 
-
+Selected Bengali as the Indian language for BPE tokenizer training.
 
 ## Dataset
 
 Multiple reference to raw Bengali corpus is available at this [GitHub link](https://github.com/sagorbrur/bangla-corpus). Used following references from that for gathering raw bengali text for the purpose of training the tokenizer.
-  - [Tab-delimited Bilingual Sentence Pairs](https://www.manythings.org/anki/) - These are selected sentence pairs from the [Tatoeba Project](http://tatoeba.org/home). This has approximately 6,500 english to bengali sentence pairs. Only Bengali sentectes are extracted for training the tokenization
-  - [IndicParaphrase](https://huggingface.co/datasets/ai4bharat/IndicParaphrase) - Only the input data from validation dataset of [Bengali paraphrases](https://huggingface.co/datasets/ai4bharat/IndicParaphrase/blob/main/data/bn_IndicParaphrase_v1.0.zip) are used for the tokenization. That dataset contains 10,000 bengali sentences.
+    - [Tab-delimited Bilingual Sentence Pairs](https://www.manythings.org/anki/) - These are selected sentence pairs from the [Tatoeba Project](http://tatoeba.org/home). This has approximately 6,500 english to bengali sentence pairs. Only Bengali sentectes are extracted for training the tokenization
+    - [IndicParaphrase](https://huggingface.co/datasets/ai4bharat/IndicParaphrase) - Only the input data from validation dataset of [Bengali paraphrases](https://huggingface.co/datasets/ai4bharat/IndicParaphrase/blob/main/data/bn_IndicParaphrase_v1.0.zip) are used for the tokenization. That dataset contains 10,000 bengali sentences.
  
 ## Steps
 
 ### Initial experiment
 
-1. Followed the instructions [video](https://youtu.be/zduSFxRajkE) from  Andrej Karpathy and created the [notebook]() for experiment.
-2. Updated the model code for adding Gradio in the notebook as part of experiment
-3. Added the Gradio app in the notebook
+1. Followed the instructions from the [video](https://youtu.be/zduSFxRajkE) from  Andrej Karpathy and created the [notebook](https://github.com/sayanbanerjee32/TASI_ERAv2_S20/blob/main/bengali_bpe_tokenizer_experiment.ipynb) for experiment.
+2. Experimented with the regular expression that suits bengali language. The intention was to the regular expression for splliting Bengali words instead of characters.
+    - Using gpt2 regex `'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+` was resulting in splitting of individual characters instead of words.
+    - Used the regex ` ?\p{Bengali}+| ?[^\s\p{Bengali}]+|\s+(?!\S)|\s+` that could split the sentence _"সবাই যা করতে চায় তা করতে চায়নি।"_ into following words _'সবাই', ' যা', ' করতে', ' চায়', ' তা', ' করতে', ' চায়নি', '।'_
+3. Updated BPE training process to use text chucks as output from the regular expression splits instad of the complete sentences. This helps avoiding merging of tokens across different workds. [Ref](https://github.com/karpathy/minbpe/blob/master/minbpe/regex.py)
+4. Updated `encode` and `decoder` function to deal with text chucks instead of complete sentences. [Ref](https://github.com/karpathy/minbpe/blob/master/minbpe/regex.py)
 
-### Pushed Model to HuggingFace Model Hub
-1. Refactored code in train.py and model.py
-2. Added code to same vocab and model arguments and weights that would need to be used for inferencing later
-3. Pushed the model.py and saved artifacts to HuggingFace Model Hub using huggingface API from this [notebook](https://github.com/sayanbanerjee32/TASI_ERAv2_S19/blob/main/gpt_dev_hfhub.ipynb)
+### Ttokenizer training
+1. Refactored code in training [notebook](https://github.com/sayanbanerjee32/TASI_ERAv2_S20/blob/main/bengali_bpe_tokenizer_train.ipynb) and [utils.py](https://github.com/sayanbanerjee32/TASI_ERAv2_S20/blob/main/utils.py)
+2. Trained the tokeniser to reach **vocab size of 5001 and compression of 11X**
+3. Saved vocab file (contains the mapping from toens to bengali text), merges files (contains the mapping from pair of tokens to be merged to token after merging) and the regular expression that is used for splitting the bengali sentences. All these artifacts are required to perform BPE tokenization on a new text.
+4. Pushed the saved artifacts to HuggingFace Model Hub using huggingface API from the notebook
 
 ### Pushed Gradio App to HuggingFace Spaces
-1. Created app.py that can read the model artefacts and vocab artefacts from HuggingFace Model Hub and launch the app
-2. Pushed the model.py, app.py and requirements.txt to HuggingFace spaces using huggingface API from this [notebook](https://github.com/sayanbanerjee32/TASI_ERAv2_S19/blob/main/gpt-dev-spaces.ipynb)
+1. Created app.py that can read the tokenizer artefacts from HuggingFace Model Hub and launch the app,
+2. Pushed the app.py, utils.py and requirements.txt to HuggingFace spaces using huggingface API from this [notebook](https://github.com/sayanbanerjee32/TASI_ERAv2_S20/blob/main/bengali_bpe_tokenizer_gradio.ipynb)
 
 ## The Huggingface Spaces Gradio App
 
-The app is available [here](https://huggingface.co/spaces/sayanbanerjee32/nano_text_generator)
+The app is available [here](https://huggingface.co/spaces/sayanbanerjee32/bengali_bpe_tokenizer)
 
-The App takes following as input 
-1. Seed Text (Prompt) - This provided as input text to the GPT model, based on which it generates further contents. If no data is provided, the only a space (" ") is provided as input
-2. Max tokens to generate - This controls the numbers of character tokens it will generate. The default value is 100.
-3. Temperature - This accepts value between 0 to 1. Higher value introduces more randomness in the next token generation. Default value is set to 0.7.
-4. Select Top N in each step - This is optional field. If no value is provided (or <= 0), all available tokens are considered for next token prediction based on SoftMax probability. However, if a number is set then only that many top characters will be considered for next token prediction.
+The App takes one or more Bengali sentences as input provide following outputs
+1. Numeric tokets that represent the sentence (using encode function)
+2. Regenerated sentence using the tokens (using decode function)
+3. A visualisation for each token to Bengali text mapping as explanation for the tokenization.
