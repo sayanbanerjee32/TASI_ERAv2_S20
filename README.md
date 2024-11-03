@@ -41,7 +41,9 @@ Multiple references of raw Bengali corpus are available at this [GitHub link](ht
 
 ## The HuggingFace Spaces Gradio App
 
-The app is available [here](https://huggingface.co/spaces/sayanbanerjee32/bengali_bpe_tokenizer)
+The app is available [here](https://huggingface.co/spaces/sayanbanerjee32/bengali_bpe_tokenizer)  
+![image](https://github.com/user-attachments/assets/21824291-8b62-47b1-993b-5784ca5b9c91)
+
 
 The App takes one or more Bengali sentences as input provide following outputs
 1. Numeric tokens that represent the sentence (using encode function)
